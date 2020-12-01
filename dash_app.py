@@ -1,8 +1,9 @@
+import attr
 import os
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import dash
 import dash_core_components as dcc
@@ -13,6 +14,50 @@ from dash.dependencies import Input, Output
 app = dash.Dash(__name__,
                 meta_tags=[{"name": "viewport", "content": "width=device-width"}])
 
+
+# ------------------------------------------------------------------------------
+# Definitions
+
+@attr.s(kw_only=True)
+class LookBackHours:
+    value = attr.ib(type=int)
+    unit = attr.ib(type=str)
+    h = attr.ib()
+
+    @h.default
+    def get_look_back_hours(self):
+        h = 0
+        if self.unit == "H":
+            h = self.value
+        elif self.unit == "d":
+            h = self.value * 24
+        elif self.unit == "m":
+            h = self.value * 24 * 30
+        return h
+
+
+@attr.s(kw_only=True)
+class StartEndTime:
+    start_dt = attr.ib(type=datetime)
+    end_dt = attr.ib(type=datetime)
+
+
+@attr.s(kw_only=True)
+class DropdownTimeSelectionOptions:
+    label = attr.ib(type=str)
+    value = attr.ib(type=int)
+
+
+TIME_SELECTION_DICT = {
+    "Last 8h": LookBackHours(value=8, unit="H").h,
+    "Last day": LookBackHours(value=24, unit="H").h,
+    "Last week": LookBackHours(value=7, unit="d").h,
+    "Last month": LookBackHours(value=1, unit="m").h}
+
+
+TIME_SELECTION_OPTIONS = [{"label": o[0], "value": o[1]} for o in TIME_SELECTION_DICT.items()]
+
+
 # ------------------------------------------------------------------------------
 # Import and clean data (importing csv into pandas)
 df = pd.read_csv("msft_prices.csv")
@@ -21,6 +66,15 @@ df['date'] = pd.to_datetime(df['date'], format="%Y-%m-%d %H:%M:%S")
 print(df.dtypes)
 print(df[:5])
 
+ticker_selected = "MSFT"
+
+
+# ------------------------------------------------------------------------------
+# Sub-divs loaded into app layout
+def charts_div(ticker):
+    return html.Div(
+
+    )
 
 # ------------------------------------------------------------------------------
 # App layout
@@ -30,49 +84,64 @@ app.layout = html.Div(
         # Interval component for live clock
         dcc.Interval(id="interval", interval=1 * 100, n_intervals=0),
 
-        html.H1(className="app-header", children="Stock Markets Exploration Board"),
-        dcc.Dropdown(id="slct_year",
-                     options=[
-                        {"label": "2020", "value": 2020}],
+        # html.H1(className="app-header", children="Stock Markets Exploration Board"),
+        dcc.Dropdown(id="time_selection",
+                     options=TIME_SELECTION_OPTIONS,
                      multi=False,
-                     value=2020,
-                     style={'width': "40%"}),
-        html.Div(id='output_container', children=[]),
-        html.Br(),
-        dcc.Graph(id='stock_prices', figure={}),
+                     clearable=False,
+                     value=TIME_SELECTION_OPTIONS[0]['value']),
+                     # style={'width': "40%"}),
 
+        html.Div(id="output_container", children=[]),
+
+        dcc.Graph(id="charts", className="col-charts",
+                  children=[]),
+                  #children=[charts_div(ticker_selected)]),
+
+        """
         # Ticker line
         html.Div(
             className="div-ticker-line",
             children=[
                 html.Div(
                     id="live-clock",
+                    className="live-clock",
                     children=datetime.now().strftime("%H:%M:%S")),
                 html.Div(
                     id="ticker",
-                    children=[])
+                    className="ticker",
+                    children=[
+                        html.P("updatetext")
+                    ])
             ]
-        ),
+        )
+        """
     ]
 )
+
+# [{"label": "Last 8h", "value": 2020},
+# {"label": "Last 24h", "value": 2021}],
 
 
 # ------------------------------------------------------------------------------
 # Connect the Plotly graphs with Dash Components
 @app.callback(
     [Output(component_id='output_container', component_property='children'),
-     Output(component_id='stock_prices', component_property='figure')],
-    [Input(component_id='slct_year', component_property='value')]
+     Output(component_id='charts', component_property='figure')],
+    [Input(component_id='time_selection', component_property='value')]
 )
-def update_graph(option_slctd):
-    print(option_slctd)
-    print(type(option_slctd))
+def update_graph(time_selection):
+    print(time_selection)
 
-    container = "The year chosen by user was: {}".format(option_slctd)
+    container = "The time selected was: {}".format(time_selection)
+
+    now = datetime.now()
+    start_dt = now - timedelta(hours=time_selection)
+    end_dt = now
 
     dff = df.copy()
-    dff = dff[dff["date"].dt.year == option_slctd]
-    # dff = dff[dff["Affected by"] == "Varroa_mites"]
+    dff = dff[(dff.date >= start_dt) & (dff.date <= end_dt)]
+    print(dff)
 
     fig = go.Figure(go.Candlestick(
         x=dff['date'],
@@ -98,17 +167,19 @@ def update_graph(option_slctd):
     return container, fig
 
 
+"""
 # Callback to update live clock
 @app.callback(Output("live-clock", "children"), [Input("interval", "n_intervals")])
 def update_time(n):
     return datetime.now().strftime("%H:%M:%S")
+"""
 
-
+"""
 @app.callback(Output("ticker", "children"), [Input("interval", "n_intervals")])
 def update_ticker(n):
     ticker = "test"
     return ticker
-
+"""
 
 if __name__ == '__main__':
     app.run_server(debug=True)
