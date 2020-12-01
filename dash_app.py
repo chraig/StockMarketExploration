@@ -76,6 +76,7 @@ def charts_div(ticker):
 
     )
 
+
 # ------------------------------------------------------------------------------
 # App layout
 app.layout = html.Div(
@@ -90,13 +91,11 @@ app.layout = html.Div(
                      multi=False,
                      clearable=False,
                      value=TIME_SELECTION_OPTIONS[0]['value']),
-                     # style={'width': "40%"}),
 
         html.Div(id="output_container", children=[]),
 
         dcc.Graph(id="charts", className="col-charts",
-                  children=[]),
-                  #children=[charts_div(ticker_selected)]),
+                  children=[]),  # children=[charts_div(ticker_selected)]),
 
         """
         # Ticker line
@@ -118,9 +117,6 @@ app.layout = html.Div(
         """
     ]
 )
-
-# [{"label": "Last 8h", "value": 2020},
-# {"label": "Last 24h", "value": 2021}],
 
 
 # ------------------------------------------------------------------------------
@@ -156,14 +152,6 @@ def update_graph(time_selection):
         # xaxis_rangeslider_visible='slider' in value
     )
 
-    # fig.update_layout(
-    #     title_text="Bees Affected by Mites in the USA",
-    #     title_xanchor="center",
-    #     title_font=dict(size=24),
-    #     title_x=0.5,
-    #     geo=dict(scope='usa'),
-    # )
-
     return container, fig
 
 
@@ -174,12 +162,6 @@ def update_time(n):
     return datetime.now().strftime("%H:%M:%S")
 """
 
-"""
-@app.callback(Output("ticker", "children"), [Input("interval", "n_intervals")])
-def update_ticker(n):
-    ticker = "test"
-    return ticker
-"""
 
 if __name__ == '__main__':
     app.run_server(debug=True)
