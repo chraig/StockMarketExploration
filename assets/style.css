@@ -424,40 +424,6 @@ there.
         font-size: 36px;
         display: block;
     }
-    /*
-    .div-ticker-line{
-        width: 100%;
-        border: 1px solid red;
-        overflow: hidden;
-    }
-    #live-clock {
-        width: 10%;
-        display: inline-block;
-        float: left;
-        border: 1px solid blue;
-    }
-    #ticker {
-        width: 89%;
-        display: inline-block;
-        border: 1px solid green;
-        float: left;
-    }
-    */
-    /*
-    .ticker {
-        background: #004fff;
-        overflow: hidden;
-        position: relative;
-        color: #fff;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        font-size: 16px;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        left: 100px;
-    }
-    */
 
     #time_selection {
         width: 150px;
