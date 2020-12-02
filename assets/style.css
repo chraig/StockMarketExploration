@@ -27,7 +27,6 @@
 
 /* This was actually not quite right -
    dropdowns were overlapping each other (edited October 26)
-
 .Select {
     z-index: 1002;
 }*/
@@ -417,15 +416,16 @@ there.
 /* Own simplified media customization */
 @media /*only screen and (max-width: 768px)*/
 {
-    .app-header{
-        color: #c9d2d1;
-        text-align: center;
-        font-weight: 400;
-        font-size: 36px;
-        display: block;
-    }
-
     #time_selection {
         width: 150px;
     }
+}
+
+/* Custom App CSS
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+body{
+    background-color: #1a1c23;
+    color: #b2b2b2;
+    height: 100vh;
+    margin: 0;
 }
