@@ -10,57 +10,16 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 
+import charts
+import definitions
 
 app = dash.Dash(__name__,
                 meta_tags=[{"name": "viewport", "content": "width=device-width"}])
 
 
 # ------------------------------------------------------------------------------
-# Definitions
-
-@attr.s(kw_only=True)
-class LookBackHours:
-    value = attr.ib(type=int)
-    unit = attr.ib(type=str)
-    h = attr.ib()
-
-    @h.default
-    def get_look_back_hours(self):
-        h = 0
-        if self.unit == "H":
-            h = self.value
-        elif self.unit == "d":
-            h = self.value * 24
-        elif self.unit == "m":
-            h = self.value * 24 * 30
-        return h
-
-
-@attr.s(kw_only=True)
-class StartEndTime:
-    start_dt = attr.ib(type=datetime)
-    end_dt = attr.ib(type=datetime)
-
-
-@attr.s(kw_only=True)
-class DropdownTimeSelectionOptions:
-    label = attr.ib(type=str)
-    value = attr.ib(type=int)
-
-
-TIME_SELECTION_DICT = {
-    "Last 8h": LookBackHours(value=8, unit="H").h,
-    "Last day": LookBackHours(value=24, unit="H").h,
-    "Last week": LookBackHours(value=7, unit="d").h,
-    "Last month": LookBackHours(value=1, unit="m").h}
-
-
-TIME_SELECTION_OPTIONS = [{"label": o[0], "value": o[1]} for o in TIME_SELECTION_DICT.items()]
-
-
-# ------------------------------------------------------------------------------
 # Import and clean data (importing csv into pandas)
-df = pd.read_csv("msft_prices.csv")
+df = pd.read_csv("assets/msft_prices.csv")
 # df.set_index("date", inplace=True)
 df['date'] = pd.to_datetime(df['date'], format="%Y-%m-%d %H:%M:%S")
 print(df.dtypes)
@@ -87,12 +46,11 @@ app.layout = html.Div(
 
         # html.H1(className="app-header", children="Stock Markets Exploration Board"),
         dcc.Dropdown(id="time_selection",
-                     options=TIME_SELECTION_OPTIONS,
+                     options=definitions.TIME_SELECTION_OPTIONS,
                      multi=False,
                      clearable=False,
-                     value=TIME_SELECTION_OPTIONS[0]['value']),
+                     value=definitions.TIME_SELECTION_OPTIONS[0]['value']),
 
-        html.Div(id="output_container", children=[]),
 
         dcc.Graph(id="charts", className="col-charts",
                   children=[]),  # children=[charts_div(ticker_selected)]),
@@ -122,14 +80,11 @@ app.layout = html.Div(
 # ------------------------------------------------------------------------------
 # Connect the Plotly graphs with Dash Components
 @app.callback(
-    [Output(component_id='output_container', component_property='children'),
-     Output(component_id='charts', component_property='figure')],
-    [Input(component_id='time_selection', component_property='value')]
+    Output(component_id='charts', component_property='figure'),
+    Input(component_id='time_selection', component_property='value')
 )
 def update_graph(time_selection):
     print(time_selection)
-
-    container = "The time selected was: {}".format(time_selection)
 
     now = datetime.now()
     start_dt = now - timedelta(hours=time_selection)
@@ -139,20 +94,14 @@ def update_graph(time_selection):
     dff = dff[(dff.date >= start_dt) & (dff.date <= end_dt)]
     print(dff)
 
-    fig = go.Figure(go.Candlestick(
-        x=dff['date'],
-        open=dff['1. open'],
-        high=dff['2. high'],
-        low=dff['3. low'],
-        close=dff['4. close']
-    ))
+    fig = go.Figure(charts.candlestick_chart(dff))
 
     fig.update_layout(
         title_text="Stock Price",
-        # xaxis_rangeslider_visible='slider' in value
+        xaxis_rangeslider_visible=False
     )
 
-    return container, fig
+    return fig
 
 
 """
