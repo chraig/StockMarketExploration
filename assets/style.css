@@ -419,6 +419,9 @@ there.
     #time_selection {
         width: 150px;
     }
+    #ticker_selection {
+        width: 150px;
+    }
 }
 
 /* Custom App CSS
