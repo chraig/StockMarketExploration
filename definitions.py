@@ -1,6 +1,8 @@
 import attr
 
 
+# ------------------------------------------------------------------------------
+# Period selection
 @attr.s(kw_only=True)
 class LookBackHours:
     value = attr.ib(type=int)
@@ -19,11 +21,11 @@ class LookBackHours:
         return h
 
 
-TIME_SELECTION_DICT = {
+PERIOD_SELECTION_DICT = {
     "Last 8h": LookBackHours(value=8, unit="H").h,
     "Last day": LookBackHours(value=24, unit="H").h,
     "Last week": LookBackHours(value=7, unit="d").h,
     "Last month": LookBackHours(value=1, unit="m").h}
 
 
-TIME_SELECTION_OPTIONS = [{"label": o[0], "value": o[1]} for o in TIME_SELECTION_DICT.items()]
+PERIOD_SELECTION_OPTIONS = [{"label": o[0], "value": o[1]} for o in PERIOD_SELECTION_DICT.items()]

@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from datetime import datetime, timedelta
 
 import dash
@@ -12,6 +13,8 @@ from dash.dependencies import Input, Output, State
 
 import charts
 import definitions
+from charts import candlestick_trace, accumulation_trace
+
 
 app = dash.Dash(__name__,
                 meta_tags=[{"name": "viewport", "content": "width=device-width"}])
@@ -62,11 +65,11 @@ app.layout = html.Div(
         dcc.Interval(id="interval", interval=1 * 100, n_intervals=0),
 
         # html.H1(className="app-header", children="Stock Markets Exploration Board"),
-        dcc.Dropdown(id="time_selection",
-                     options=definitions.TIME_SELECTION_OPTIONS,
+        dcc.Dropdown(id="period_selection",
+                     options=definitions.PERIOD_SELECTION_OPTIONS,
                      multi=False,
                      clearable=False,
-                     value=definitions.TIME_SELECTION_OPTIONS[2]['value']),
+                     value=definitions.PERIOD_SELECTION_OPTIONS[2]['value']),
         dcc.Dropdown(id="ticker_selection",
                      options=[{"label": "MSFT", "value": "MSFT"}],
                      multi=False,
@@ -92,6 +95,14 @@ app.layout = html.Div(
                             dcc.Graph(
                                 id="msft" + "_chart",
                                 className="chart-graph",
+                                config={"displayModeBar": False, "scrollZoom": True},
+                                children=[]
+                            ),
+                        ),
+                        html.Div(
+                            dcc.Graph(
+                                id="msft" + "_chart2",
+                                className="chart-graph2",
                                 config={"displayModeBar": False, "scrollZoom": True},
                                 children=[]
                             ),
@@ -123,21 +134,99 @@ app.layout = html.Div(
 )
 
 
-# ------------------------------------------------------------------------------
-# Connect the Plotly graphs with Dash Components
-@app.callback(
-    Output(component_id='msft_chart', component_property='figure'),
-    [Input(component_id='time_selection', component_property='value'),
-     Input(component_id='ticker_selection', component_property='value')]
-)
-def update_graph(time_selection, ticker_selection):
-
+# Returns graph figure
+def get_fig(ticker_selection, period_selection):
     if ticker_selection not in tickers:
         fig = go.Figure()
         return fig
 
     now = datetime.now()
-    start_dt = now - timedelta(hours=time_selection)
+    start_dt = now - timedelta(hours=period_selection)
+    end_dt = now
+
+    dff = df.copy()
+    dff = dff[(dff.date >= start_dt) & (dff.date <= end_dt)]
+
+    subplot_traces = [  # first row traces
+        "accumulation_trace",
+        "cci_trace",
+        "roc_trace",
+        "stoc_trace",
+        "mom_trace",
+    ]
+    selected_subplots_studies = []
+    selected_first_row_studies = []
+    row = 1  # number of subplots
+
+    fig = make_subplots(
+        rows=row,
+        shared_xaxes=True,
+        shared_yaxes=True,
+        cols=1,
+        print_grid=False,
+        vertical_spacing=0.12,
+    )
+
+    # Add main trace (style) to figure, eval of chart type
+    fig.append_trace(eval("candlestick_trace")(dff), 1, 1)
+
+    # Add trace(s) on fig's first row, eval of chart study
+    # fig = fig.add_trace(eval("accumulation_trace")(dff))
+
+    row = 1
+    # Plot trace on new row
+    # fig.append_trace(eval("accumulation_trace")(dff), row, 1)
+
+    fig["layout"][
+        "uirevision"
+    ] = "The User is always right"  # Ensures zoom on graph is the same on update
+    fig["layout"]["margin"] = {"t": 50, "l": 50, "b": 50, "r": 25}
+    fig["layout"]["autosize"] = True
+    fig["layout"]["height"] = 400
+    fig["layout"]["xaxis"]["rangeslider"]["visible"] = False
+    fig["layout"]["xaxis"]["tickformat"] = "%H:%M"
+    fig["layout"]["yaxis"]["showgrid"] = True
+    fig["layout"]["yaxis"]["gridcolor"] = "#3E3F40"
+    fig["layout"]["yaxis"]["gridwidth"] = 1
+    fig["layout"].update(paper_bgcolor="#21252C", plot_bgcolor="#21252C")
+
+    return fig
+
+
+# ------------------------------------------------------------------------------
+@app.callback(
+    Output(component_id="msft" + "_chart2", component_property="figure"),
+    [Input(component_id="period_selection", component_property="value"),
+     Input(component_id="ticker_selection", component_property="value")],
+    [State(component_id="msft" + "_chart2", component_property="figure")]
+)
+def generate_figure_callback(period_selection, ticker_selection, old_fig):
+    if tickers is None:
+        return {"layout": {}, "data": {}}
+
+    if ticker_selection not in tickers:
+        return {"layout": {}, "data": []}
+
+    if old_fig is None or old_fig == {"layout": {}, "data": {}}:
+        return get_fig(ticker_selection, period_selection)
+
+    fig = get_fig(ticker_selection, period_selection)
+    return fig
+
+
+# Connect the Plotly graphs with Dash Components
+@app.callback(
+    Output(component_id="msft_chart", component_property="figure"),
+    [Input(component_id="period_selection", component_property="value"),
+     Input(component_id="ticker_selection", component_property="value")]
+)
+def update_graph_callback(period_selection, ticker_selection):
+    if ticker_selection not in tickers:
+        fig = go.Figure()
+        return fig
+
+    now = datetime.now()
+    start_dt = now - timedelta(hours=period_selection)
     end_dt = now
 
     dff = df.copy()
@@ -151,6 +240,15 @@ def update_graph(time_selection, ticker_selection):
     )
 
     return fig
+
+
+# Callback for className of div for graphs
+@app.callback(
+    Output("msft" + "_graph_div", "className"),
+    [Input("ticker_selection", "value")]
+)
+def generate_show_hide_graph_div_callback(ticker_selection):
+    return "display-none"
 
 
 """
