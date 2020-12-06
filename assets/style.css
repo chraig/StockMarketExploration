@@ -416,7 +416,7 @@ there.
 /* Own simplified media customization */
 @media /*only screen and (max-width: 768px)*/
 {
-    #time_selection {
+    #period_selection {
         width: 150px;
     }
     #ticker_selection {
