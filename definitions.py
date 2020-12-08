@@ -28,4 +28,32 @@ PERIOD_SELECTION_DICT = {
     "Last month": LookBackHours(value=1, unit="m").h}
 
 
-PERIOD_SELECTION_OPTIONS = [{"label": o[0], "value": o[1]} for o in PERIOD_SELECTION_DICT.items()]
+PERIOD_SELECTION_OPTIONS = [{"label": o[0], "value": o[1]}
+                            for o in PERIOD_SELECTION_DICT.items()]
+
+
+# ------------------------------------------------------------------------------
+# Study trace selection
+CHART_TYPE_SELECTION_DICT = {
+    "Line": "line_trace",
+    "Area": "area_trace",
+    "Candlestick": "candlestick_trace",
+    "Bar": "colored_bar_trace"}
+
+
+CHART_TYPE_SELECTION_OPTIONS = [{"label": o[0], "value": o[1]}
+                                for o in CHART_TYPE_SELECTION_DICT.items()]
+
+
+# ------------------------------------------------------------------------------
+# Study trace selection
+STUDY_TRACE_SELECTION_DICT = {
+    "Accumulation": "accumulation_trace",
+    "CCI": "cci_trace",
+    "ROC": "roc_trace",
+    "STOC": "stoc_trace",
+    "MOM": "mom_trace"}
+
+
+STUDY_TRACE_SELECTION_OPTIONS = [{"label": o[0], "value": o[1]}
+                                 for o in STUDY_TRACE_SELECTION_DICT.items()]
