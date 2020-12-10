@@ -14,7 +14,8 @@ from dash.dependencies import Input, Output, State
 import charts
 import definitions
 from charts import (line_trace, area_trace, candlestick_trace, colored_bar_trace,
-                    accumulation_trace, cci_trace, roc_trace, stoc_trace, mom_trace)
+                    accumulation_trace, cci_trace, roc_trace, stoc_trace, mom_trace,
+                    moving_average_trace, e_moving_average_trace, bollinger_trace, pp_trace)
 
 
 app = dash.Dash(__name__,
@@ -70,7 +71,7 @@ app.layout = html.Div(
                      options=definitions.PERIOD_SELECTION_OPTIONS,
                      multi=False,
                      clearable=False,
-                     value=definitions.PERIOD_SELECTION_OPTIONS[1]["value"]),
+                     value=definitions.PERIOD_SELECTION_OPTIONS[3]["value"]),
         dcc.Dropdown(id="ticker_selection",
                      options=[{"label": "MSFT", "value": "MSFT"}],
                      multi=False,
@@ -102,14 +103,6 @@ app.layout = html.Div(
                     id="msft" + "_graph_div",
                     className="display-none",
                     children=[
-                        # html.Div(
-                        #     dcc.Graph(
-                        #         id="msft" + "_chart",
-                        #         className="chart-graph",
-                        #         config={"displayModeBar": False, "scrollZoom": True},
-                        #         children=[]
-                        #     ),
-                        # ),
                         html.Div(
                             dcc.Graph(
                                 id="msft" + "_chart2",
@@ -148,7 +141,7 @@ app.layout = html.Div(
 # ------------------------------------------------------------------------------
 
 # Returns graph figure
-def get_fig(ticker: str, period: int, chart_type: str, study: str):
+def get_fig(ticker: str, period: int, chart_type: str, studies: tuple):
     if ticker not in tickers:
         fig = go.Figure()
         return fig
@@ -160,7 +153,8 @@ def get_fig(ticker: str, period: int, chart_type: str, study: str):
     dff = df.copy()
     dff = dff[(dff.date >= start_dt) & (dff.date <= end_dt)]
 
-    subplot_traces = [  # first row traces
+    # first row traces
+    subplot_traces = [
         "accumulation_trace",
         "cci_trace",
         "roc_trace",
@@ -170,6 +164,14 @@ def get_fig(ticker: str, period: int, chart_type: str, study: str):
     selected_subplots_studies = []
     selected_first_row_studies = []
     row = 1  # number of subplots
+
+    if studies:
+        for study in studies:
+            if study in subplot_traces:
+                row += 1  # increment number of rows only if the study needs a subplot
+                selected_subplots_studies.append(study)
+            else:
+                selected_first_row_studies.append(study)
 
     fig = make_subplots(
         rows=row,
@@ -181,14 +183,17 @@ def get_fig(ticker: str, period: int, chart_type: str, study: str):
     )
 
     # Add main trace (style) to figure, eval of chart type
-    fig.append_trace(eval(chart_type)(dff), 1, 1)
+    fig.append_trace(eval(chart_type)(dff), 1, 1)  # chart_type
 
-    # Add trace(s) on fig's first row, eval of chart study
-    fig = fig.add_trace(eval("accumulation_trace")(dff))
+    # Add trace(s) on fig's first row
+    for study in selected_first_row_studies:
+        fig = eval(study)(dff, fig)
 
     row = 1
     # Plot trace on new row
-    # fig.append_trace(eval("accumulation_trace")(dff), row, 1)
+    for study in selected_subplots_studies:
+        row += 1
+        fig.append_trace(eval(study)(dff), row, 1)
 
     fig["layout"]["uirevision"] = "The User is always right"  # Ensures zoom on graph is the same on update
     fig["layout"]["margin"] = {"t": 50, "l": 50, "b": 50, "r": 25}
@@ -221,38 +226,10 @@ def generate_figure_callback(period_selection, ticker_selection, chart_type_sele
         return {"layout": {}, "data": []}
 
     if old_fig is None or old_fig == {"layout": {}, "data": {}}:
-        return get_fig(ticker_selection, period_selection, chart_type_selection, study_selection)
+        return get_fig(ticker_selection, period_selection, chart_type_selection, (study_selection,))
 
-    fig = get_fig(ticker_selection, period_selection, chart_type_selection, study_selection)
+    fig = get_fig(ticker_selection, period_selection, chart_type_selection, (study_selection,))
     return fig
-
-
-# # Connect the Plotly graphs with Dash Components
-# @app.callback(
-#     Output(component_id="msft_chart", component_property="figure"),
-#     [Input(component_id="period_selection", component_property="value"),
-#      Input(component_id="ticker_selection", component_property="value")]
-# )
-# def update_graph_callback(period_selection, ticker_selection):
-#     if ticker_selection not in tickers:
-#         fig = go.Figure()
-#         return fig
-#
-#     now = datetime.now()
-#     start_dt = now - timedelta(hours=period_selection)
-#     end_dt = now
-#
-#     dff = df.copy()
-#     dff = dff[(dff.date >= start_dt) & (dff.date <= end_dt)]
-#
-#     fig = go.Figure(charts.candlestick_chart(dff))
-#
-#     fig.update_layout(
-#         title_text="Stock Price",
-#         # xaxis_rangeslider_visible='slider' in value
-#     )
-#
-#     return fig
 
 
 # Callback for className of div for graphs

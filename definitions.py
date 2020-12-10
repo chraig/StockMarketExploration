@@ -24,6 +24,7 @@ class LookBackHours:
 PERIOD_SELECTION_DICT = {
     "Last 8h": LookBackHours(value=8, unit="H").h,
     "Last day": LookBackHours(value=24, unit="H").h,
+    "Last 3 days": LookBackHours(value=3, unit="d").h,
     "Last week": LookBackHours(value=7, unit="d").h,
     "Last month": LookBackHours(value=1, unit="m").h}
 
@@ -52,7 +53,11 @@ STUDY_TRACE_SELECTION_DICT = {
     "CCI": "cci_trace",
     "ROC": "roc_trace",
     "STOC": "stoc_trace",
-    "MOM": "mom_trace"}
+    "MOM": "mom_trace",
+    "PP": "pp_trace",
+    "Bollinger Band": "bollinger_trace",
+    "Moving average": "moving_average_trace",
+    "Exponential moving average": "e_moving_average_trace"}
 
 
 STUDY_TRACE_SELECTION_OPTIONS = [{"label": o[0], "value": o[1]}
