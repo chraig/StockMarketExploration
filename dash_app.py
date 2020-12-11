@@ -1,5 +1,3 @@
-import attr
-import os
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -11,7 +9,6 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 
-import charts
 import definitions
 from charts import (line_trace, area_trace, candlestick_trace, colored_bar_trace,
                     accumulation_trace, cci_trace, roc_trace, stoc_trace, mom_trace,
@@ -86,7 +83,7 @@ app.layout = html.Div(
                      options=definitions.STUDY_TRACE_SELECTION_OPTIONS,
                      multi=False,
                      clearable=False,
-                     value=definitions.STUDY_TRACE_SELECTION_OPTIONS[0]["value"]),
+                     value=definitions.STUDY_TRACE_SELECTION_OPTIONS[-2]["value"]),
 
         html.Div(id="output_container", children=[]),
 
@@ -183,7 +180,7 @@ def get_fig(ticker: str, period: int, chart_type: str, studies: tuple):
     )
 
     # Add main trace (style) to figure, eval of chart type
-    fig.append_trace(eval(chart_type)(dff), 1, 1)  # chart_type
+    fig.append_trace(eval(chart_type)(dff), row=1, col=1)  # chart_type
 
     # Add trace(s) on fig's first row
     for study in selected_first_row_studies:
@@ -193,19 +190,45 @@ def get_fig(ticker: str, period: int, chart_type: str, studies: tuple):
     # Plot trace on new row
     for study in selected_subplots_studies:
         row += 1
-        fig.append_trace(eval(study)(dff), row, 1)
+        fig.append_trace(eval(study)(dff), row=row, col=1)
+
+    fig.update_traces(xaxis="x1")  # rebinds all traces to the x-axis
 
     fig["layout"]["uirevision"] = "The User is always right"  # Ensures zoom on graph is the same on update
     fig["layout"]["margin"] = {"t": 50, "l": 50, "b": 50, "r": 25}
     fig["layout"]["autosize"] = True
-    fig["layout"]["height"] = 400
-    fig["layout"]["xaxis"]["rangeslider"]["visible"] = False
-    fig["layout"]["xaxis"]["tickformat"] = "%H:%M"
-    fig["layout"]["yaxis"]["showgrid"] = True
+    fig["layout"]["height"] = 600
+
+    # legend definitions
+    fig["layout"]["showlegend"] = True              # defines if showlegend of single charts is True (default) or False
+    # fig["layout"]["legend_orientation"] = "h"     # somehow cannot be defined here
+    fig["layout"]["legend"] = dict(y=1, x=0)        # position of legend
+    fig["layout"]["font"] = dict(color="#dedddc")   # legend and probably title font definitions
+
+    # x-axis definitions
+    fig["layout"]["xaxis"]["rangeslider"]["visible"] = False    # disables sub-graph time range slider
+    fig["layout"]["xaxis"]["tickformat"] = "%H:%M"              # numbers not showing????????
+
+    # y-axis definitions
+    # fig["layout"]["xaxis"]["showline"] = True
+    # fig["layout"]["yaxis"]["showgrid"] = True
     fig["layout"]["yaxis"]["gridcolor"] = "#3E3F40"
     fig["layout"]["yaxis"]["gridwidth"] = 1
-    fig["layout"].update(paper_bgcolor="#21252C", plot_bgcolor="#21252C")
 
+    # crosshairs definitions
+    fig["layout"]["xaxis"]["spikedash"] = "solid"       # solid line instead of dashed default or others
+    fig["layout"]["xaxis"]["spikesnap"] = "cursor"      # snap to cursor or data point
+    fig["layout"]["yaxis"]["spikedash"] = "solid"       # solid line instead of dashed default or others
+    fig["layout"]["yaxis"]["spikesnap"] = "cursor"      # snap to cursor or data point
+
+    fig["layout"].update(paper_bgcolor="#21252C",
+                         plot_bgcolor="#21252C",
+                         legend_orientation="v",        # orient legend content vertically or horizontally
+                         # legend=dict(y=1, x=0),
+                         # font=dict(color="#dedddc"),
+                         # dragmode='pan',              # grab and move chart instead of time selection
+                         hovermode='x unified',         # enables cursor crosshairs
+                         )
     return fig
 
 
