@@ -6,4 +6,4 @@ This project will aim to to provide
 3. predictive attempts by utilizing a machine learning service which will be served via another project
 
 Preliminary state:
-![alt text](https://github.com/chraig/StockMarketExploration/assets/preliminary.png "Preliminary state")
+![alt text](https://github.com/chraig/StockMarketExploration/blob/main/assets/preliminary.png "Preliminary state")
