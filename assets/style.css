@@ -127,11 +127,14 @@ are based on 10px sizing. So basically 1.5rem = 15px :) */
 html {
   font-size: 62.5%; }
 body {
-  font-size: 1.5em; /* currently ems cause chrome bug misinterpreting rems on body element */
+  font-size: 1.6em; /* currently ems cause chrome bug misinterpreting rems on body element */
   line-height: 1.6;
   font-weight: 400;
-  font-family: "Open Sans", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color: rgb(50, 50, 50); }
+  font-family:  "Lato", "Open Sans", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  margin: 0px;
+  color: #b2b2b2;
+  background-color: #1a1c23;
+  }
 
 
 /* Typography
@@ -436,9 +439,47 @@ there.
 
 /* Custom App CSS
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
-body{
-    background-color: #1a1c23;
-    color: #b2b2b2;
-    height: 100vh;
-    margin: 0;
+.app {
+  min-height: 100vh;
+  top: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr;
 }
+
+/* ticker line */
+.ticker-line {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  height: 40px;
+}
+
+.live-clock {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  padding-top: 5px;
+  padding-right: 10px;
+  padding-left: 10px;
+  border-right: 1px solid white;
+}
+
+.ticker-line > .live-clock > div {
+  margin: 10px;
+  font-size: 2rem;
+}
+
+.ticker {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  padding-top: 5px;
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+.ticker-line > .ticker > div {
+  margin: 10px;
+  font-size: 2rem;
+}
+
