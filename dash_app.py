@@ -18,7 +18,6 @@ from charts import (line_trace, area_trace, candlestick_trace, colored_bar_trace
 app = dash.Dash(__name__,
                 meta_tags=[{"name": "viewport", "content": "width=device-width"}])
 
-
 # ------------------------------------------------------------------------------
 # Import and clean data (importing csv into pandas)
 df = pd.read_csv("assets/msft_prices.csv")
@@ -57,80 +56,87 @@ def charts_div(ticker):
 
 # ------------------------------------------------------------------------------
 # App layout
+def ticker_line(children):
+    return html.Div(children, className='ticker-line')
+
+
+div_ticker_line = ticker_line([
+    html.Div(
+        id="live-clock",
+        className="live-clock",
+        children=html.P(datetime.now().strftime("%H:%M:%S")),
+    ),
+    html.Div(
+        id="ticker",
+        className="ticker",
+        children=html.P("21423421 Updatetext Updatetext Updatetext Updatetext ")
+    )
+])
+
+
 app.layout = html.Div(
     className="app",
     children=[
-        # Interval component for live clock
-        dcc.Interval(id="interval", interval=1 * 100, n_intervals=0),
-
-        # html.H1(className="app-header", children="Stock Markets Exploration Board"),
-        dcc.Dropdown(id="period_selection",
-                     options=definitions.PERIOD_SELECTION_OPTIONS,
-                     multi=False,
-                     clearable=False,
-                     value=definitions.PERIOD_SELECTION_OPTIONS[3]["value"]),
-        dcc.Dropdown(id="ticker_selection",
-                     options=[{"label": "MSFT", "value": "MSFT"}],
-                     multi=False,
-                     clearable=False,
-                     value="MSFT"),
-        dcc.Dropdown(id="chart_type_selection",
-                     options=definitions.CHART_TYPE_SELECTION_OPTIONS,
-                     multi=False,
-                     clearable=False,
-                     value=definitions.CHART_TYPE_SELECTION_OPTIONS[0]["value"]),
-        dcc.Dropdown(id="study_selection",
-                     options=definitions.STUDY_TRACE_SELECTION_OPTIONS,
-                     multi=False,
-                     clearable=False,
-                     value=definitions.STUDY_TRACE_SELECTION_OPTIONS[-2]["value"]),
-
-        html.Div(id="output_container", children=[]),
-
-        # dcc.Graph(id="charts", className="col-charts",
-        #           children=[]),  # children=[charts_div(ticker_selected)]),
-
-        # Charts Div
-        html.Div(
-            id="charts",
-            className="charts",
-            children=[
-                # charts_div(ticker_selected),
-                html.Div(
-                    id="msft" + "_graph_div",
-                    className="display-none",
-                    children=[
-                        html.Div(
-                            dcc.Graph(
-                                id="msft" + "_chart2",
-                                className="chart-graph2",
-                                config={"displayModeBar": False, "scrollZoom": True},
-                                children=[]
-                            ),
-                        ),
-                    ]
-                )
-            ],
-        ),
-
-        """
         # Ticker line
+        div_ticker_line,
+
+        # # Interval component for live clock
+        # dcc.Interval(id="interval", interval=1 * 100, n_intervals=0),
+
         html.Div(
-            className="div-ticker-line",
+            className="charts-line",
             children=[
+                # html.H1(className="app-header", children="Stock Markets Exploration Board"),
+                dcc.Dropdown(id="period_selection",
+                             options=definitions.PERIOD_SELECTION_OPTIONS,
+                             multi=False,
+                             clearable=False,
+                             value=definitions.PERIOD_SELECTION_OPTIONS[3]["value"]),
+                dcc.Dropdown(id="ticker_selection",
+                             options=[{"label": "MSFT", "value": "MSFT"}],
+                             multi=False,
+                             clearable=False,
+                             value="MSFT"),
+                dcc.Dropdown(id="chart_type_selection",
+                             options=definitions.CHART_TYPE_SELECTION_OPTIONS,
+                             multi=False,
+                             clearable=False,
+                             value=definitions.CHART_TYPE_SELECTION_OPTIONS[0]["value"]),
+                dcc.Dropdown(id="study_selection",
+                             options=definitions.STUDY_TRACE_SELECTION_OPTIONS,
+                             multi=False,
+                             clearable=False,
+                             value=definitions.STUDY_TRACE_SELECTION_OPTIONS[-2]["value"]),
+
+                html.Div(id="output_container", children=[]),
+
+                # dcc.Graph(id="charts", className="col-charts",
+                #           children=[]),  # children=[charts_div(ticker_selected)]),
+
+                # Charts Div
                 html.Div(
-                    id="live-clock",
-                    className="live-clock",
-                    children=datetime.now().strftime("%H:%M:%S")),
-                html.Div(
-                    id="ticker",
-                    className="ticker",
+                    id="charts",
+                    className="charts",
                     children=[
-                        html.P("updatetext")
-                    ])
+                        # charts_div(ticker_selected),
+                        html.Div(
+                            id="msft" + "_graph_div",
+                            className="display-none",
+                            children=[
+                                html.Div(
+                                    dcc.Graph(
+                                        id="msft" + "_chart2",
+                                        className="chart-graph2",
+                                        config={"displayModeBar": False, "scrollZoom": True},
+                                        children=[]
+                                    ),
+                                ),
+                            ]
+                        )
+                    ],
+                ),
             ]
         )
-        """
     ]
 )
 
