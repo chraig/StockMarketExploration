@@ -57,10 +57,12 @@ def charts_div(ticker):
 # ------------------------------------------------------------------------------
 # App layout
 def ticker_line(children):
-    return html.Div(children, className='ticker-line')
+    return html.Div(children, className="ticker-line")
 
 
 div_ticker_line = ticker_line([
+    # # Interval component for live clock
+    # dcc.Interval(id="interval", interval=1 * 100, n_intervals=0),
     html.Div(
         id="live-clock",
         className="live-clock",
@@ -69,74 +71,125 @@ div_ticker_line = ticker_line([
     html.Div(
         id="ticker",
         className="ticker",
-        children=html.P("21423421 Updatetext Updatetext Updatetext Updatetext ")
+        children=html.P("NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS ")
     )
+])
+
+
+def news_history(children):
+    return html.Div(children, className="news-history")
+
+
+def main_chart_data(children):
+    return html.Div(children, className="main-chart-data")
+
+
+def favorites_board(children):
+    return html.Div(children, className="favorites-board")
+
+
+def analysis_board(children):
+    return html.Div(children, className="analysis-board")
+
+
+div_news_history = news_history([
+    html.P("Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod"
+           + "tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et "
+           + "justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata"
+           + "sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, "
+           + "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. "
+           + "At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata "
+           + "sanctus est Lorem ipsum dolor sit amet.")
+])
+
+div_main_chart_data = main_chart_data([
+    # Charts Div
+    html.Div(
+        id="charts",
+        className="charts",
+        children=[
+            # charts_div(ticker_selected),
+            html.Div(
+                id="msft" + "_graph_div",
+                className="display-none",
+                children=[
+                    html.Div(
+                        dcc.Graph(
+                            id="msft" + "_chart2",
+                            className="chart-graph2",
+                            config={"displayModeBar": False, "scrollZoom": True},
+                            children=[]
+                        ),
+                    ),
+                ]
+            )
+        ],
+    ),
+
+    html.Div(
+        id="period-selection", className="period-selection",
+        children=[
+            html.Div(id="period_1", className="period", children=[html.A("24h", id="24h")]),
+            html.Div(id="period_2", className="period", children=[html.A("7d", id="7d")]),
+            html.Div(id="period_3", className="period", children=[html.A("1M", id="1M")]),
+            html.Div(id="period_4", className="period", children=[html.A("3M", id="3M")]),
+            html.Div(id="period_5", className="period", children=[html.A("6M", id="6M")]),
+            html.Div(id="period_6", className="period", children=[html.A("1J", id="1J")]),
+            html.Div(id="period_7", className="period", children=[html.A("5J", id="5J")]),
+            html.Div(id="period_8", className="period", children=[html.A("MAX", id="MAX")]),
+         ]
+    ),
+
+    dcc.Dropdown(id="period_selection2",
+                 options=definitions.PERIOD_SELECTION_OPTIONS,
+                 multi=False,
+                 clearable=False,
+                 value=definitions.PERIOD_SELECTION_OPTIONS[3]["value"]),
+    dcc.Dropdown(id="ticker_selection",
+                 options=[{"label": "MSFT", "value": "MSFT"}],
+                 multi=False,
+                 clearable=False,
+                 value="MSFT"),
+    dcc.Dropdown(id="chart_type_selection",
+                 options=definitions.CHART_TYPE_SELECTION_OPTIONS,
+                 multi=False,
+                 clearable=False,
+                 value=definitions.CHART_TYPE_SELECTION_OPTIONS[0]["value"]),
+    dcc.Dropdown(id="study_selection",
+                 options=definitions.STUDY_TRACE_SELECTION_OPTIONS,
+                 multi=False,
+                 clearable=False,
+                 value=definitions.STUDY_TRACE_SELECTION_OPTIONS[-2]["value"]),
+
+    html.Div(id="output_container", children=[]),
+])
+
+
+div_favorites_board = favorites_board([
+    html.Div(id="favorites_selection", className="favorites-selection", children=[
+        html.Div(id="favorite_1", className="favorite", children=[html.P("Favorite 1")]),
+        html.Div(id="favorite_2", className="favorite", children=[html.P("Favorite 2")]),
+        html.Div(id="favorite_3", className="favorite", children=[html.P("Favorite 3")]),
+        html.Div(id="favorite_4", className="favorite", children=[html.P("Favorite 4")]),
+        html.Div(id="favorite_5", className="favorite", children=[html.P("Favorite 5")]),
+        html.Div(id="favorite_6", className="favorite", children=[html.P("Favorite 6")]),
+    ]),
+    html.Div(id="favorites_configuration", className="favorites-configuration", children=[]),
+])
+
+
+div_analysis_board = analysis_board([
+    div_news_history,
+    div_main_chart_data,
+    div_favorites_board,
 ])
 
 
 app.layout = html.Div(
     className="app",
     children=[
-        # Ticker line
         div_ticker_line,
-
-        # # Interval component for live clock
-        # dcc.Interval(id="interval", interval=1 * 100, n_intervals=0),
-
-        html.Div(
-            className="charts-line",
-            children=[
-                # html.H1(className="app-header", children="Stock Markets Exploration Board"),
-                dcc.Dropdown(id="period_selection",
-                             options=definitions.PERIOD_SELECTION_OPTIONS,
-                             multi=False,
-                             clearable=False,
-                             value=definitions.PERIOD_SELECTION_OPTIONS[3]["value"]),
-                dcc.Dropdown(id="ticker_selection",
-                             options=[{"label": "MSFT", "value": "MSFT"}],
-                             multi=False,
-                             clearable=False,
-                             value="MSFT"),
-                dcc.Dropdown(id="chart_type_selection",
-                             options=definitions.CHART_TYPE_SELECTION_OPTIONS,
-                             multi=False,
-                             clearable=False,
-                             value=definitions.CHART_TYPE_SELECTION_OPTIONS[0]["value"]),
-                dcc.Dropdown(id="study_selection",
-                             options=definitions.STUDY_TRACE_SELECTION_OPTIONS,
-                             multi=False,
-                             clearable=False,
-                             value=definitions.STUDY_TRACE_SELECTION_OPTIONS[-2]["value"]),
-
-                html.Div(id="output_container", children=[]),
-
-                # dcc.Graph(id="charts", className="col-charts",
-                #           children=[]),  # children=[charts_div(ticker_selected)]),
-
-                # Charts Div
-                html.Div(
-                    id="charts",
-                    className="charts",
-                    children=[
-                        # charts_div(ticker_selected),
-                        html.Div(
-                            id="msft" + "_graph_div",
-                            className="display-none",
-                            children=[
-                                html.Div(
-                                    dcc.Graph(
-                                        id="msft" + "_chart2",
-                                        className="chart-graph2",
-                                        config={"displayModeBar": False, "scrollZoom": True},
-                                        children=[]
-                                    ),
-                                ),
-                            ]
-                        )
-                    ],
-                ),
-            ]
-        )
+        div_analysis_board,
     ]
 )
 
@@ -241,13 +294,17 @@ def get_fig(ticker: str, period: int, chart_type: str, studies: tuple):
 # ------------------------------------------------------------------------------
 @app.callback(
     Output(component_id="msft" + "_chart2", component_property="figure"),
-    [Input(component_id="period_selection", component_property="value"),
+    [  # Input(component_id="period_selection2", component_property="value"),
+     Input(component_id="3M", component_property="id"),
      Input(component_id="ticker_selection", component_property="value"),
      Input(component_id="chart_type_selection", component_property="value"),
      Input(component_id="study_selection", component_property="value")],
     [State(component_id="msft" + "_chart2", component_property="figure")]
 )
-def generate_figure_callback(period_selection, ticker_selection, chart_type_selection, study_selection, old_fig):
+def generate_figure_callback(period_4, ticker_selection, chart_type_selection, study_selection, old_fig):
+
+    period_selection = definitions.PERIOD_SELECTION_DICT[period_4]
+
     if tickers is None:
         return {"layout": {}, "data": {}}
 

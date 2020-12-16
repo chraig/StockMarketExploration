@@ -16,17 +16,19 @@ class LookBackHours:
             h = self.value
         elif self.unit == "d":
             h = self.value * 24
-        elif self.unit == "m":
+        elif self.unit == "M":
             h = self.value * 24 * 30
         return h
 
 
 PERIOD_SELECTION_DICT = {
-    "Last 8h": LookBackHours(value=8, unit="H").h,
-    "Last day": LookBackHours(value=24, unit="H").h,
-    "Last 3 days": LookBackHours(value=3, unit="d").h,
-    "Last week": LookBackHours(value=7, unit="d").h,
-    "Last month": LookBackHours(value=1, unit="m").h}
+    "24h": LookBackHours(value=24, unit="H").h,
+    "7d": LookBackHours(value=7, unit="d").h,
+    "1M": LookBackHours(value=1, unit="M").h,
+    "3M": LookBackHours(value=3, unit="M").h,
+    "6M": LookBackHours(value=6, unit="M").h,
+    "1J": LookBackHours(value=1, unit="J").h,
+    "5J": LookBackHours(value=5, unit="J").h}
 
 
 PERIOD_SELECTION_OPTIONS = [{"label": o[0], "value": o[1]}
