@@ -447,6 +447,7 @@ there.
   grid-template-rows: auto 1fr;
 }
 
+
 /* ticker line */
 .ticker-line {
   display: grid;
@@ -461,7 +462,6 @@ there.
   padding-top: 5px;
   padding-right: 10px;
   padding-left: 10px;
-  border-right: 1px solid white;
 }
 
 .ticker-line > .live-clock > div {
@@ -481,5 +481,77 @@ there.
 .ticker-line > .ticker > div {
   margin: 10px;
   font-size: 2rem;
+}
+
+
+
+/*Wrapper of analysis, history and favorites*/
+.analysis-board {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+
+/*News History*/
+.news-history {
+  display: flex
+  justify-content: left;
+  padding-right: 10px;
+  padding-left: 10px;
+  width: 10vw;
+}
+
+
+/*Main chart*/
+.main-chart-data {
+  display: flex
+  justify-content: left;
+  width: 60vw;
+}
+
+.period-selection {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+}
+
+.period {
+  display: flex;
+  justify-content: center;
+  height: 25px;
+  border-left: 1px solid white;
+  border-right: 1px solid white;
+}
+
+.period a {
+  text-decoration: none;
+}
+
+
+
+/*Favorites*/
+.favorites-board {
+  display: grid
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  width: 28vw;
+  padding: 5px;
+}
+
+.favorites-selection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;   /*define columns distribution in major items div*/
+}
+
+.favorite {
+  display: flex;
+  justify-content: left;
+  margin: 5px;
+  min-height: 200px;
+  border: 1px solid cyan;
+}
+
+.favorites-configuration {
+  margin: 5px;
+  border: 1px solid white;
 }
 
