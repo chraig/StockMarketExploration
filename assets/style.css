@@ -248,8 +248,10 @@ textarea,
 select {
   height: 38px;
   padding: 6px 10px; /* The 6px vertically centers text on FF, ignored by Webkit */
-  background-color: #fff;
-  border: 1px solid #D1D1D1;
+  color: #b4b4b4;
+  background-color: #30333d;
+  border: 0px solid rgba(180, 180, 180, 0.4);
+  border-bottom: 1px solid rgba(180, 180, 180, 0.4);
   border-radius: 4px;
   box-shadow: none;
   box-sizing: border-box;
@@ -448,10 +450,13 @@ there.
 }
 
 
-/* ticker line */
+/* --- Ticker Line --- */
 .ticker-line {
   display: grid;
   grid-template-columns: auto 1fr;
+  background-color: #30333d;
+  margin: 5px;
+  margin-bottom: 0px;
   height: 40px;
 }
 
@@ -485,27 +490,37 @@ there.
 
 
 
-/*Wrapper of analysis, history and favorites*/
+/* --- Wrapper of analysis, history and favorites --- */
 .analysis-board {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
+  margin: 5px;
 }
 
 
-/*News History*/
+/* --- News History --- */
+
 .news-history {
   display: flex
   justify-content: left;
-  padding-right: 10px;
-  padding-left: 10px;
+  background-color: #21252C;
+  margin: 5px;
   width: 10vw;
 }
 
 
-/*Main chart*/
+/* --- Main chart --- */
+
+.main-chart {
+  margin: 5px;
+}
+
+/* Configuration Bar */
+
 .main-chart-configuration {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  background-color: #30333d;
 }
 
 .main-chart-configuration > .data-selection {
@@ -514,7 +529,7 @@ there.
   padding: 5px;
 }
 
-.search-input {
+.main-chart-configuration > .data-selection > .search-input {
   width: 100%;
 }
 
@@ -523,9 +538,46 @@ there.
   grid-template-columns: 1fr 1fr;
 }
 
-.dropdown {
+/* Dropdown Definitions */
+
+div.Select-value, .Select-control, div.dropdown, .Select-input{
   padding: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
+
+.Select-control{
+  background-color: inherit;
+  color:#b4b4b4;
+  border: 0px solid rgba(180, 180, 180, 0.4);
+  border-bottom: 1px solid rgba(180, 180, 180, 0.4);
+}
+
+.Select-value-label{
+  position: relative;
+}
+
+.has-value.Select--single > .Select-control .Select-value .Select-value-label, .has-value.is-pseudo-focused.Select--single > .Select-control .Select-value .Select-value-label {
+  color:#b4b4b4;
+}
+
+.Select.is-open > .Select-control {
+  background-color: inherit;
+  border: 0px solid #b4b4b4;
+}
+
+.Select-menu {
+  background-color: #262a30;
+  border: 0px solid #b4b4b4;
+}
+
+.Select-menu-outer {
+  background-color: #262a30;
+  border: 0px solid #b4b4b4;
+}
+
+/* Chart Depiction */
 
 .main-chart-data {
   display: flex
@@ -536,34 +588,46 @@ there.
 .period-selection {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  background-color: #30333d;
 }
+
+/* Period Selection */
 
 .period {
   display: flex;
   justify-content: center;
   height: 25px;
-  border-left: 1px solid white;
-  border-right: 1px solid white;
+  /*
+  border-left: 1px solid #b4b4b4;
+  border-right: 1px solid #b4b4b4;
+  */
 }
 
 .period a {
+  color: #b4b4b4;
   text-decoration: none;
 }
 
+.main-chart-additional-options {
+  background-color: #21252C;
+  height: 190px;
+}
 
 
-/*Favorites*/
+/* --- Favorites Board --- */
+
 .favorites-board {
   display: grid
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr;
   width: 28vw;
-  padding: 5px;
+  margin: 5px;
 }
 
 .favorites-selection {
   display: grid;
   grid-template-columns: 1fr 1fr;   /*define columns distribution in major items div*/
+  background-color: #30333d;
 }
 
 .favorite {
@@ -575,7 +639,7 @@ there.
 }
 
 .favorites-configuration {
-  margin: 5px;
-  border: 1px solid white;
+  background-color: #21252C;
+  height: 225px;
 }
 
