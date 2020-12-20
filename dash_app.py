@@ -50,6 +50,9 @@ def get_fig(ticker: str, period: int, chart_type: str, studies: tuple):
 
     dff = df.copy()
     dff = dff[(dff.date >= start_dt) & (dff.date <= end_dt)]
+    dff.set_index("date", inplace=True)
+    print(dff)
+    print(period)
 
     # first row traces
     subplot_traces = [
@@ -65,6 +68,8 @@ def get_fig(ticker: str, period: int, chart_type: str, studies: tuple):
 
     if studies:
         for study in studies:
+            if study == "":
+                break
             if study in subplot_traces:
                 # increment number of rows only if the study needs a subplot
                 row += 1
@@ -118,7 +123,10 @@ def get_fig(ticker: str, period: int, chart_type: str, studies: tuple):
     # disables sub-graph time range slider
     fig["layout"]["xaxis"]["rangeslider"]["visible"] = False
     # numbers not showing????????
-    fig["layout"]["xaxis"]["tickformat"] = "%H:%M"
+    if period <= 24:
+        fig["layout"]["xaxis"]["tickformat"] = "%H:%M"
+    else:
+        fig["layout"]["xaxis"]["tickformat"] = "%Y-%m-%d %H:%M"
 
     # --- y-axis definitions ---
     # fig["layout"]["xaxis"]["showline"] = True
@@ -152,8 +160,6 @@ def get_fig(ticker: str, period: int, chart_type: str, studies: tuple):
 
 def get_empty_fig(msg):
     fig = make_subplots()
-
-    fig["data"] = []
 
     fig["layout"]["xaxis"]["showgrid"] = False
     fig["layout"]["xaxis"]["zeroline"] = False
@@ -248,7 +254,7 @@ def main_chart(children):
     return html.Div(children, className="main-chart")
 
 
-# favorites board sbsection
+# favorites board subsection
 def favorites_board(children):
     return html.Div(children, className="favorites-board")
 
@@ -281,7 +287,7 @@ div_main_chart_configuration = main_chart_configuration([
                               options=definitions.STUDY_TRACE_SELECTION_OPTIONS,
                               multi=False,
                               clearable=False,
-                              value=definitions.STUDY_TRACE_SELECTION_OPTIONS[-2]["value"]),
+                              value=definitions.STUDY_TRACE_SELECTION_OPTIONS[0]["value"]),
              ])
 ])
 
@@ -329,7 +335,8 @@ div_main_chart_data = main_chart_data([
 
 
 div_main_chart_additional_options = main_chart_additional_options([
-    html.Div(id="output_container", children=[]),
+    html.Div(id="additional-chart-options",
+             className="additional-chart-options", children=[]),
 ])
 
 
@@ -427,13 +434,12 @@ def generate_figure_callback(one_day, one_week, one_month, three_month,
     if search_input not in tickers:
         return get_empty_fig("No data available")
 
-    if old_fig is None or old_fig == {"layout": {}, "data": {}}:
+    if old_fig is None or old_fig["data"] == []:
         return get_fig(search_input, period_selection, chart_type_selection,
                        (study_selection,))
 
     fig = get_fig(search_input, period_selection, chart_type_selection,
                   (study_selection,))
-    print(fig)
     return fig
 
 

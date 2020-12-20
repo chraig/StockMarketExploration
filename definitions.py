@@ -51,6 +51,7 @@ CHART_TYPE_SELECTION_OPTIONS = [{"label": o[0], "value": o[1]}
 # ------------------------------------------------------------------------------
 # Study trace selection
 STUDY_TRACE_SELECTION_DICT = {
+    "No study": "",
     "Accumulation": "accumulation_trace",
     "CCI": "cci_trace",
     "ROC": "roc_trace",
