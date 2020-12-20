@@ -503,6 +503,30 @@ there.
 
 
 /*Main chart*/
+.main-chart-configuration {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.main-chart-configuration > .data-selection {
+  display: flex;
+  justify-content: left;
+  padding: 5px;
+}
+
+.search-input {
+  width: 100%;
+}
+
+.main-chart-configuration > .chart-depiction-selection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.dropdown {
+  padding: 5px;
+}
+
 .main-chart-data {
   display: flex
   justify-content: left;
