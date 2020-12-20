@@ -14,7 +14,7 @@ class LookBackHours:
         h = 0
         if self.unit == "H":
             h = self.value
-        elif self.unit == "d":
+        elif self.unit == "D":
             h = self.value * 24
         elif self.unit == "M":
             h = self.value * 24 * 30
@@ -22,8 +22,8 @@ class LookBackHours:
 
 
 PERIOD_SELECTION_DICT = {
-    "24h": LookBackHours(value=24, unit="H").h,
-    "7d": LookBackHours(value=7, unit="d").h,
+    "24H": LookBackHours(value=24, unit="H").h,
+    "7D": LookBackHours(value=7, unit="D").h,
     "1M": LookBackHours(value=1, unit="M").h,
     "3M": LookBackHours(value=3, unit="M").h,
     "6M": LookBackHours(value=6, unit="M").h,

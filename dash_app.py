@@ -150,6 +150,34 @@ def get_fig(ticker: str, period: int, chart_type: str, studies: tuple):
     return fig
 
 
+def get_empty_fig(msg):
+    fig = make_subplots()
+
+    fig["data"] = []
+
+    fig["layout"]["xaxis"]["showgrid"] = False
+    fig["layout"]["xaxis"]["zeroline"] = False
+    fig["layout"]["xaxis"]["visible"] = False
+    fig["layout"]["xaxis"]["range"] = [0, 2]
+
+    fig["layout"]["yaxis"]["showgrid"] = False
+    fig["layout"]["yaxis"]["zeroline"] = False
+    fig["layout"]["yaxis"]["visible"] = False
+    fig["layout"]["yaxis"]["range"] = [0, 2]
+
+    fig["layout"].update(paper_bgcolor="#21252C", plot_bgcolor="#21252C",
+                         annotations=[
+                             dict(
+                                 x=1, y=1,  # annotation point
+                                 xref='x1', yref='y1',
+                                 text=msg,
+                                 font=dict(size=40, color="#b2b2b2")
+                             )
+                         ])
+
+    return fig
+
+
 # ------------------------------------------------------------------------------
 # Sub-divs loaded into app layout
 def charts_div(ticker):
@@ -170,6 +198,8 @@ def charts_div(ticker):
 
 # ------------------------------------------------------------------------------
 # App layout
+
+# --- news ticker section
 def ticker_line(children):
     return html.Div(children, className="ticker-line")
 
@@ -190,14 +220,35 @@ div_ticker_line = ticker_line([
 ])
 
 
+# --- analysis board section ---
+
+# news history subsection
 def news_history(children):
     return html.Div(children, className="news-history")
+
+
+# main chart subsection
+def main_chart_configuration(children):
+    return html.Div(children, className="main-chart-configuration")
 
 
 def main_chart_data(children):
     return html.Div(children, className="main-chart-data")
 
 
+def main_chart_period(children):
+    return html.Div(children, className="main-chart-period")
+
+
+def main_chart_additional_options(children):
+    return html.Div(children, className="main-chart-additional-options")
+
+
+def main_chart(children):
+    return html.Div(children, className="main-chart")
+
+
+# favorites board sbsection
 def favorites_board(children):
     return html.Div(children, className="favorites-board")
 
@@ -210,8 +261,48 @@ div_news_history = news_history([
     html.P("Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed")
 ])
 
+
+div_main_chart_configuration = main_chart_configuration([
+    html.Div(id="data-selection", className="data-selection", children=[
+        dcc.Input(id="search-input", className="search-input", type="search",
+                  placeholder="Search", debounce=True)
+    ]),
+    html.Div(id="chart-depiction-selection",
+             className="chart-depiction-selection",
+             children=[
+                 dcc.Dropdown(id="chart-type-selection",
+                              className="dropdown",
+                              options=definitions.CHART_TYPE_SELECTION_OPTIONS,
+                              multi=False,
+                              clearable=False,
+                              value=definitions.CHART_TYPE_SELECTION_OPTIONS[0]["value"]),
+                 dcc.Dropdown(id="study-selection",
+                              className="dropdown",
+                              options=definitions.STUDY_TRACE_SELECTION_OPTIONS,
+                              multi=False,
+                              clearable=False,
+                              value=definitions.STUDY_TRACE_SELECTION_OPTIONS[-2]["value"]),
+             ])
+])
+
+div_main_chart_period = main_chart_period([
+    html.Div(
+        id="period-selection", className="period-selection",
+        children=[
+            html.Div(id="24H", className="period", children=[html.A("24H")]),
+            html.Div(id="7D", className="period", children=[html.A("7D")]),
+            html.Div(id="1M", className="period", children=[html.A("1M")]),
+            html.Div(id="3M", className="period", children=[html.A("3M")]),
+            html.Div(id="6M", className="period", children=[html.A("6M")]),
+            html.Div(id="1J", className="period", children=[html.A("1J")]),
+            html.Div(id="5J", className="period", children=[html.A("5J")]),
+            html.Div(id="MAX", className="period", children=[html.A("MAX")]),
+        ]
+    ),
+])
+
+
 div_main_chart_data = main_chart_data([
-    # Charts Div
     html.Div(
         id="charts",
         className="charts",
@@ -234,40 +325,19 @@ div_main_chart_data = main_chart_data([
             )
         ],
     ),
+])
 
-    html.Div(
-        id="period-selection", className="period-selection",
-        children=[
-            html.Div(id="24H", className="period", children=[html.A("24H")]),
-            html.Div(id="7D", className="period", children=[html.A("7D")]),
-            html.Div(id="1M", className="period", children=[html.A("1M")]),
-            html.Div(id="3M", className="period", children=[html.A("3M")]),
-            html.Div(id="6M", className="period", children=[html.A("6M")]),
-            html.Div(id="1J", className="period", children=[html.A("1J")]),
-            html.Div(id="5J", className="period", children=[html.A("5J")]),
-            html.Div(id="MAX", className="period", children=[html.A("MAX")]),
-        ]
-    ),
 
-    html.Div(id="dropdowns", className="dropdowns", children=[
-        dcc.Dropdown(id="ticker_selection",
-                     options=[{"label": "MSFT", "value": "MSFT"}],
-                     multi=False,
-                     clearable=False,
-                     value="MSFT"),
-        dcc.Dropdown(id="chart_type_selection",
-                     options=definitions.CHART_TYPE_SELECTION_OPTIONS,
-                     multi=False,
-                     clearable=False,
-                     value=definitions.CHART_TYPE_SELECTION_OPTIONS[0]["value"]),
-        dcc.Dropdown(id="study_selection",
-                     options=definitions.STUDY_TRACE_SELECTION_OPTIONS,
-                     multi=False,
-                     clearable=False,
-                     value=definitions.STUDY_TRACE_SELECTION_OPTIONS[-2]["value"]),
-    ]),
-
+div_main_chart_additional_options = main_chart_additional_options([
     html.Div(id="output_container", children=[]),
+])
+
+
+div_main_chart = main_chart([
+    div_main_chart_configuration,
+    div_main_chart_data,
+    div_main_chart_period,
+    div_main_chart_additional_options,
 ])
 
 
@@ -294,11 +364,12 @@ div_favorites_board = favorites_board([
 
 div_analysis_board = analysis_board([
     div_news_history,
-    div_main_chart_data,
+    div_main_chart,
     div_favorites_board,
 ])
 
 
+# --- overall layout aggregation ---
 app.layout = html.Div(
     className="app",
     children=[
@@ -319,14 +390,14 @@ app.layout = html.Div(
      Input(component_id="1J", component_property="n_clicks"),
      Input(component_id="5J", component_property="n_clicks"),
      Input(component_id="MAX", component_property="n_clicks"),
-     Input(component_id="ticker_selection", component_property="value"),
-     Input(component_id="chart_type_selection", component_property="value"),
-     Input(component_id="study_selection", component_property="value")],
+     Input(component_id="search-input", component_property="value"),
+     Input(component_id="chart-type-selection", component_property="value"),
+     Input(component_id="study-selection", component_property="value")],
     [State(component_id="msft" + "_chart2", component_property="figure")]
 )
 def generate_figure_callback(one_day, one_week, one_month, three_month,
                              six_month, one_year, five_years,
-                             max_data, ticker_selection, chart_type_selection,
+                             max_data, search_input, chart_type_selection,
                              study_selection, old_fig):
 
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
@@ -347,27 +418,29 @@ def generate_figure_callback(one_day, one_week, one_month, three_month,
     # elif "MAX" in changed_id:
     #     period_selection = definitions.PERIOD_SELECTION_DICT["MAX"]
     else:
-        period_selection = definitions.PERIOD_SELECTION_DICT["5J"]
+        period_selection = definitions.PERIOD_SELECTION_DICT["3M"]
 
-    if tickers is None:
-        return {"layout": {}, "data": {}}
+    # dummy while no search bar dummy strategy is met
+    if search_input is None:
+        search_input = "MSFT"
 
-    if ticker_selection not in tickers:
-        return {"layout": {}, "data": []}
+    if search_input not in tickers:
+        return get_empty_fig("No data available")
 
     if old_fig is None or old_fig == {"layout": {}, "data": {}}:
-        return get_fig(ticker_selection, period_selection, chart_type_selection,
+        return get_fig(search_input, period_selection, chart_type_selection,
                        (study_selection,))
 
-    fig = get_fig(ticker_selection, period_selection, chart_type_selection,
+    fig = get_fig(search_input, period_selection, chart_type_selection,
                   (study_selection,))
+    print(fig)
     return fig
 
 
 # Callback for className of div for graphs
 @app.callback(
     Output("msft" + "_graph_div", "className"),
-    [Input("ticker_selection", "value")]
+    [Input("search-input", "value")]
 )
 def generate_show_hide_graph_div_callback(ticker_selection):
     return "display-none"
