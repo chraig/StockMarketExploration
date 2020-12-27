@@ -18,6 +18,8 @@ class LookBackHours:
             h = self.value * 24
         elif self.unit == "M":
             h = self.value * 24 * 30
+        elif self.unit == "J":
+            h = self.value * 24 * 365
         return h
 
 

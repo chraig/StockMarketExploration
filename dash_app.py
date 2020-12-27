@@ -30,8 +30,6 @@ df.rename(columns={"1. open": "open",
                    "4. close": "close",
                    "5. volume": "volume"},
           inplace=True)
-print(df.dtypes)
-print(df[:5])
 
 ticker_selected = "MSFT"
 tickers = ["MSFT"]
@@ -40,6 +38,11 @@ tickers = ["MSFT"]
 # ------------------------------------------------------------------------------
 # Returns graph figure
 def get_fig(ticker: str, period: int, chart_type: str, studies: tuple):
+    print(ticker)
+    print(period)
+    print(chart_type)
+    print(studies)
+
     if ticker not in tickers:
         fig = go.Figure()
         return fig
@@ -50,9 +53,21 @@ def get_fig(ticker: str, period: int, chart_type: str, studies: tuple):
 
     dff = df.copy()
     dff = dff[(dff.date >= start_dt) & (dff.date <= end_dt)]
+    print(dff[-1:].date)
+    print(start_dt)
+    print(dff[dff.date < start_dt])
+    print(dff[dff.date < start_dt].empty)
+    if dff[dff.date < start_dt].empty:
+        true_start_data = [{"date": start_dt, "open": None, "high": None,
+                            "low": None, "close": None, "volume": None}]
+        dff_new = pd.DataFrame(true_start_data)
+        dff_new["date"] = pd.to_datetime(dff_new["date"],
+                                         format="%Y-%m-%d %H:%M:%S")
+        print(dff_new)
+        dff_new = dff_new.append(dff)
+    dff = dff_new
     dff.set_index("date", inplace=True)
     print(dff)
-    print(period)
 
     # first row traces
     subplot_traces = [
@@ -100,7 +115,7 @@ def get_fig(ticker: str, period: int, chart_type: str, studies: tuple):
         fig.append_trace(eval(study)(dff), row=row, col=1)
 
     # rebinds all traces to the x-axis
-    fig.update_traces(xaxis="x1")
+    # fig.update_traces(xaxis="x1")
 
     # Ensures zoom on graph is the same on update
     fig["layout"]["uirevision"] = "The User is always right"
@@ -432,9 +447,9 @@ def generate_figure_callback(one_day, one_week, one_month, three_month,
         search_input = "MSFT"
 
     if search_input not in tickers:
-        return get_empty_fig("No data available")
+        return get_empty_fig("No ticker data available")
 
-    if old_fig is None or old_fig["data"] == []:
+    if old_fig is None or old_fig["data"] == {}:
         return get_fig(search_input, period_selection, chart_type_selection,
                        (study_selection,))
 
