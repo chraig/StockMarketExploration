@@ -36,13 +36,8 @@ tickers = ["MSFT"]
 
 
 # ------------------------------------------------------------------------------
-# Returns graph figure
-def get_fig(ticker: str, period: int, chart_type: str, studies: tuple):
-    print(ticker)
-    print(period)
-    print(chart_type)
-    print(studies)
-
+# Returns main graph figure
+def get_main_fig(ticker: str, period: int, chart_type: str, studies: tuple):
     if ticker not in tickers:
         fig = go.Figure()
         return fig
@@ -53,21 +48,14 @@ def get_fig(ticker: str, period: int, chart_type: str, studies: tuple):
 
     dff = df.copy()
     dff = dff[(dff.date >= start_dt) & (dff.date <= end_dt)]
-    print(dff[-1:].date)
-    print(start_dt)
-    print(dff[dff.date < start_dt])
-    print(dff[dff.date < start_dt].empty)
+
     if dff[dff.date < start_dt].empty:
-        true_start_data = [{"date": start_dt, "open": None, "high": None,
-                            "low": None, "close": None, "volume": None}]
+        true_start_data = [{"date": start_dt, "open": None, "high": None, "low": None, "close": None, "volume": None}]
         dff_new = pd.DataFrame(true_start_data)
-        dff_new["date"] = pd.to_datetime(dff_new["date"],
-                                         format="%Y-%m-%d %H:%M:%S")
-        print(dff_new)
-        dff_new = dff_new.append(dff)
-    dff = dff_new
+        dff_new["date"] = pd.to_datetime(dff_new["date"], format="%Y-%m-%d %H:%M:%S")
+        dff = dff_new.append(dff)
+
     dff.set_index("date", inplace=True)
-    print(dff)
 
     # first row traces
     subplot_traces = [
@@ -169,6 +157,9 @@ def get_fig(ticker: str, period: int, chart_type: str, studies: tuple):
                          # dragmode='pan',
                          # enables cursor crosshairs
                          hovermode='x unified',
+
+                         # width=200,
+                         # height=200,
                          )
     return fig
 
@@ -196,6 +187,109 @@ def get_empty_fig(msg):
                              )
                          ])
 
+    return fig
+
+
+# Returns favorite graph figure
+def get_favorite_fig(ticker: str, period: int, chart_type: str, studies: tuple):
+    if ticker not in tickers:
+        fig = go.Figure()
+        return fig
+
+    now = datetime.now()
+    start_dt = now - timedelta(hours=period)
+    end_dt = now
+
+    dff = df.copy()
+    dff = dff[(dff.date >= start_dt) & (dff.date <= end_dt)]
+
+    if dff[dff.date < start_dt].empty:
+        true_start_data = [{"date": start_dt, "open": None, "high": None,
+                            "low": None, "close": None, "volume": None}]
+        dff_new = pd.DataFrame(true_start_data)
+        dff_new["date"] = pd.to_datetime(dff_new["date"],
+                                         format="%Y-%m-%d %H:%M:%S")
+        dff = dff_new.append(dff)
+
+    dff.set_index("date", inplace=True)
+
+    # first row traces
+    subplot_traces = [
+        "accumulation_trace",
+        "cci_trace",
+        "roc_trace",
+        "stoc_trace",
+        "mom_trace",
+    ]
+    selected_subplots_studies = []
+    selected_first_row_studies = []
+    row = 1  # number of subplots
+
+    if studies:
+        for study in studies:
+            if study == "":
+                break
+            if study in subplot_traces:
+                # increment number of rows only if the study needs a subplot
+                row += 1
+                selected_subplots_studies.append(study)
+            else:
+                selected_first_row_studies.append(study)
+
+    fig = make_subplots(
+        rows=row,
+        shared_xaxes=True,
+        shared_yaxes=True,
+        cols=1,
+        print_grid=False,
+        vertical_spacing=0.12,
+    )
+
+    # Add main trace (style) to figure, eval of chart type
+    fig.append_trace(eval(chart_type)(dff), row=1, col=1)  # chart_type
+
+    # Add trace(s) on fig's first row
+    for study in selected_first_row_studies:
+        fig = eval(study)(dff, fig)
+
+    row = 1
+    # Plot trace on new row
+    for study in selected_subplots_studies:
+        row += 1
+        fig.append_trace(eval(study)(dff), row=row, col=1)
+
+    # rebinds all traces to the x-axis
+    # fig.update_traces(xaxis="x1")
+
+    # Ensures zoom on graph is the same on update
+    fig["layout"]["uirevision"] = "The User is always right"
+
+    fig["layout"]["margin"] = {"t": 50, "l": 50, "b": 50, "r": 25}
+    fig["layout"]["autosize"] = True
+    # fig["layout"]["height"] = 600
+
+    # --- legend definitions ---
+    # defines if showlegend of single charts is True (default) or False
+    fig["layout"]["showlegend"] = False
+
+    # --- x-axis definitions ---
+    # disables sub-graph time range slider
+    fig["layout"]["xaxis"]["rangeslider"]["visible"] = False
+
+    fig["layout"]["yaxis"]["visible"] = False
+    fig["layout"]["xaxis"]["visible"] = False
+
+    fig["layout"].update(paper_bgcolor="#21252C",
+                         plot_bgcolor="#21252C",
+                         # width=200,
+                         # height=200,
+                         xaxis=dict(
+                             autorange=True
+                         ),
+                         yaxis=dict(
+                             autorange=True
+                         )
+                         )
     return fig
 
 
@@ -253,8 +347,8 @@ def main_chart_configuration(children):
     return html.Div(children, className="main-chart-configuration")
 
 
-def main_chart_data(children):
-    return html.Div(children, className="main-chart-data")
+def chart_data(children, class_name):
+    return html.Div(children, className=class_name)
 
 
 def main_chart_period(children):
@@ -286,7 +380,9 @@ div_news_history = news_history([
 div_main_chart_configuration = main_chart_configuration([
     html.Div(id="data-selection", className="data-selection", children=[
         dcc.Input(id="search-input", className="search-input", type="search",
-                  placeholder="Search", debounce=True)
+                  placeholder="Search", debounce=True,
+                  # inputMode="latin-prose"
+                  )
     ]),
     html.Div(id="chart-depiction-selection",
              className="chart-depiction-selection",
@@ -323,7 +419,7 @@ div_main_chart_period = main_chart_period([
 ])
 
 
-div_main_chart_data = main_chart_data([
+div_main_chart_data = chart_data([
     html.Div(
         id="charts",
         className="charts",
@@ -335,8 +431,8 @@ div_main_chart_data = main_chart_data([
                 children=[
                     html.Div(
                         dcc.Graph(
-                            id="msft" + "_chart2",
-                            className="chart-graph2",
+                            id="msft" + "_chart",
+                            className="chart-graph",
                             config={"displayModeBar": False,
                                     "scrollZoom": True},
                             children=[]
@@ -346,12 +442,59 @@ div_main_chart_data = main_chart_data([
             )
         ],
     ),
+], "main-chart-data")
+
+
+def generate_favorite_chart(chart):
+    return html.Div(
+        id=chart,
+        className="favorite",
+        children=[
+            html.Div(
+                id=chart + "_graph_div",
+                className="display-none",
+                children=[
+                    html.Div(
+                        dcc.Graph(
+                            id=chart + "_chart",
+                            className="favorite-chart-graph",
+                            config={"displayModeBar": False,
+                                    "scrollZoom": False},
+                            children=[]
+                        ),
+                    ),
+                ]
+            )
+        ],
+    )
+
+
+# div_favorite_chart_data = chart_data([
+#     div_favorite_charts
+# ], "favorite-chart-data")
+
+
+favorite_charts = ["favorite_1", "favorite_2", "favorite_3", "favorite_4", "favorite_5", "favorite_6"]
+
+div_favorites_board = favorites_board([
+    html.Div(id="favorites_selection", className="favorites-selection",
+             children=[chart_data([generate_favorite_chart(chart)], "favorite-chart-data") for chart in favorite_charts]
+             # [
+             #     div_favorite_chart_data,
+             #     html.Div(id="favorite_2", className="favorite", children=[html.P("Favorite 2")]),
+             #     html.Div(id="favorite_3", className="favorite", children=[html.P("Favorite 3")]),
+             #     html.Div(id="favorite_4", className="favorite", children=[html.P("Favorite 4")]),
+             #     html.Div(id="favorite_5", className="favorite", children=[html.P("Favorite 5")]),
+             #     html.Div(id="favorite_6", className="favorite", children=[html.P("Favorite 6")]),
+             # ]
+    ),
+    html.Div(id="favorites_configuration", className="favorites-configuration",
+             children=[]),
 ])
 
 
 div_main_chart_additional_options = main_chart_additional_options([
-    html.Div(id="additional-chart-options",
-             className="additional-chart-options", children=[]),
+    html.Div(id="additional-chart-options", className="additional-chart-options", children=[]),
 ])
 
 
@@ -360,27 +503,6 @@ div_main_chart = main_chart([
     div_main_chart_data,
     div_main_chart_period,
     div_main_chart_additional_options,
-])
-
-
-div_favorites_board = favorites_board([
-    html.Div(id="favorites_selection", className="favorites-selection",
-             children=[
-                 html.Div(id="favorite_1", className="favorite",
-                          children=[html.P("Favorite 1")]),
-                 html.Div(id="favorite_2", className="favorite",
-                          children=[html.P("Favorite 2")]),
-                 html.Div(id="favorite_3", className="favorite",
-                          children=[html.P("Favorite 3")]),
-                 html.Div(id="favorite_4", className="favorite",
-                          children=[html.P("Favorite 4")]),
-                 html.Div(id="favorite_5", className="favorite",
-                          children=[html.P("Favorite 5")]),
-                 html.Div(id="favorite_6", className="favorite",
-                          children=[html.P("Favorite 6")]),
-             ]),
-    html.Div(id="favorites_configuration", className="favorites-configuration",
-             children=[]),
 ])
 
 
@@ -402,8 +524,9 @@ app.layout = html.Div(
 
 
 # ------------------------------------------------------------------------------
+# main chart depiction callback
 @app.callback(
-    Output(component_id="msft" + "_chart2", component_property="figure"),
+    Output(component_id="msft" + "_chart", component_property="figure"),
     [Input(component_id="24H", component_property="n_clicks"),
      Input(component_id="7D", component_property="n_clicks"),
      Input(component_id="1M", component_property="n_clicks"),
@@ -415,12 +538,12 @@ app.layout = html.Div(
      Input(component_id="search-input", component_property="value"),
      Input(component_id="chart-type-selection", component_property="value"),
      Input(component_id="study-selection", component_property="value")],
-    [State(component_id="msft" + "_chart2", component_property="figure")]
+    [State(component_id="msft" + "_chart", component_property="figure")]
 )
-def generate_figure_callback(one_day, one_week, one_month, three_month,
-                             six_month, one_year, five_years,
-                             max_data, search_input, chart_type_selection,
-                             study_selection, old_fig):
+def generate_main_chart_callback(one_day, one_week, one_month,
+                                 three_month, six_month, one_year, five_years,
+                                 max_data, search_input, chart_type_selection,
+                                 study_selection, old_fig):
 
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
     if "24H" in changed_id:
@@ -450,21 +573,50 @@ def generate_figure_callback(one_day, one_week, one_month, three_month,
         return get_empty_fig("No ticker data available")
 
     if old_fig is None or old_fig["data"] == {}:
-        return get_fig(search_input, period_selection, chart_type_selection,
+        return get_main_fig(search_input, period_selection, chart_type_selection, (study_selection,))
+
+    fig = get_main_fig(search_input, period_selection, chart_type_selection,
                        (study_selection,))
 
-    fig = get_fig(search_input, period_selection, chart_type_selection,
-                  (study_selection,))
     return fig
 
 
-# Callback for className of div for graphs
-@app.callback(
-    Output("msft" + "_graph_div", "className"),
-    [Input("search-input", "value")]
-)
-def generate_show_hide_graph_div_callback(ticker_selection):
-    return "display-none"
+# favorite charts callback
+# @app.callback(
+#     Output(component_id="favorite_1" + "_chart", component_property="figure"),
+#     Input(component_id="search-input", component_property="value"),
+#     State(component_id="favorite_1" + "_chart", component_property="figure")
+# )
+def generate_favorite_charts():
+    def generate_favorite_charts_callback(search_input, old_fig):
+        period_selection = definitions.PERIOD_SELECTION_DICT["7D"]
+        chart_type_selection = definitions.CHART_TYPE_SELECTION_OPTIONS[0]["value"]
+        study_selection = ""
+
+        # dummy while no search bar dummy strategy is met
+        if search_input is None:
+            search_input = "MSFT"
+
+        if search_input not in tickers:
+            return get_empty_fig("No ticker data available")
+
+        if old_fig is None or old_fig["data"] == {}:
+            return get_favorite_fig(search_input, period_selection, chart_type_selection, (study_selection,))
+
+        fig = get_favorite_fig(search_input, period_selection, chart_type_selection, (study_selection,))
+        print(fig)
+
+        return fig
+
+    return generate_favorite_charts_callback
+
+
+for chart in favorite_charts:
+    app.callback(
+        Output(component_id=chart + "_chart", component_property="figure"),
+        Input(component_id="search-input", component_property="value"),
+        State(component_id=chart + "_chart", component_property="figure")
+    )(generate_favorite_charts())
 
 
 """
