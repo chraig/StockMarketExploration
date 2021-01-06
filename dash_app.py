@@ -9,6 +9,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 
+import dash_actions
 import definitions
 from charts import (line_trace, area_trace, candlestick_trace,
                     colored_bar_trace, accumulation_trace, cci_trace,
@@ -288,7 +289,7 @@ def get_favorite_fig(ticker: str, period: int, chart_type: str, studies: tuple):
                          ),
                          yaxis=dict(
                              autorange=True
-                         )
+                         ),
                          )
     return fig
 
@@ -355,8 +356,8 @@ def main_chart_period(children):
     return html.Div(children, className="main-chart-period")
 
 
-def main_chart_additional_options(children):
-    return html.Div(children, className="main-chart-additional-options")
+def main_chart_info(children):
+    return html.Div(children, className="main-chart-info")
 
 
 def main_chart(children):
@@ -463,38 +464,57 @@ def generate_favorite_chart(chart):
                             children=[]
                         ),
                     ),
+                    # favorite-chart-overlay covers all access to chart and carries buttons and information
+                    html.Div(
+                        className="favorite-chart-overlay",
+                        children=[
+                            html.Button(
+                                id=chart + "_select",
+                                className="favorite-select-button",
+                                children="Select",
+                                n_clicks=0,
+                            ),
+                            html.Button(
+                                id=chart + "_release",
+                                className="favorite-release-button",
+                                children="Release Favorite",
+                                n_clicks=0,
+                            )
+                        ]
+                    )
                 ]
             )
         ],
     )
 
 
-# div_favorite_chart_data = chart_data([
-#     div_favorite_charts
-# ], "favorite-chart-data")
-
-
-favorite_charts = ["favorite_1", "favorite_2", "favorite_3", "favorite_4", "favorite_5", "favorite_6"]
-
 div_favorites_board = favorites_board([
     html.Div(id="favorites_selection", className="favorites-selection",
-             children=[chart_data([generate_favorite_chart(chart)], "favorite-chart-data") for chart in favorite_charts]
-             # [
-             #     div_favorite_chart_data,
-             #     html.Div(id="favorite_2", className="favorite", children=[html.P("Favorite 2")]),
-             #     html.Div(id="favorite_3", className="favorite", children=[html.P("Favorite 3")]),
-             #     html.Div(id="favorite_4", className="favorite", children=[html.P("Favorite 4")]),
-             #     html.Div(id="favorite_5", className="favorite", children=[html.P("Favorite 5")]),
-             #     html.Div(id="favorite_6", className="favorite", children=[html.P("Favorite 6")]),
-             # ]
-    ),
-    html.Div(id="favorites_configuration", className="favorites-configuration",
-             children=[]),
+             children=[chart_data([generate_favorite_chart(chart)], "favorite-chart-data")
+                       for chart in dash_actions.FAVORITE_CHARTS]
+             ),
 ])
 
 
-div_main_chart_additional_options = main_chart_additional_options([
-    html.Div(id="additional-chart-options", className="additional-chart-options", children=[]),
+div_main_chart_info = main_chart_info([
+    html.Div(
+        id="main-chart-info",
+        className="main-chart-info",
+        children=[
+            html.Div(
+                className="mark-favorite-div",
+                children=[
+                    html.Button(
+                        id="make-favorite-button",
+                        className="make-favorite-button",
+                        children="Make Favorite",
+                        n_clicks=0,
+                    )
+                ]
+            )
+        ]
+    ),
+    html.I(className="fa fa-camera-retro fa-lg")
 ])
 
 
@@ -502,7 +522,7 @@ div_main_chart = main_chart([
     div_main_chart_configuration,
     div_main_chart_data,
     div_main_chart_period,
-    div_main_chart_additional_options,
+    div_main_chart_info,
 ])
 
 
@@ -581,12 +601,18 @@ def generate_main_chart_callback(one_day, one_week, one_month,
     return fig
 
 
+# make favorite callback
+@app.callback(
+    Output(component_id="make-favorite-button", component_property="disabled"),
+    Input(component_id="make-favorite-button", component_property="n_clicks"),
+)
+def mark_favorite(submit_button_clicks):
+    print(submit_button_clicks)
+    dash_actions.create_favorite()
+    return False
+
+
 # favorite charts callback
-# @app.callback(
-#     Output(component_id="favorite_1" + "_chart", component_property="figure"),
-#     Input(component_id="search-input", component_property="value"),
-#     State(component_id="favorite_1" + "_chart", component_property="figure")
-# )
 def generate_favorite_charts():
     def generate_favorite_charts_callback(search_input, old_fig):
         period_selection = definitions.PERIOD_SELECTION_DICT["7D"]
@@ -611,7 +637,7 @@ def generate_favorite_charts():
     return generate_favorite_charts_callback
 
 
-for chart in favorite_charts:
+for chart in dash_actions.FAVORITE_CHARTS:
     app.callback(
         Output(component_id=chart + "_chart", component_property="figure"),
         Input(component_id="search-input", component_property="value"),

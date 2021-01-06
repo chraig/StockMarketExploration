@@ -185,7 +185,7 @@ input[type="button"] {
   display: inline-block;
   height: 38px;
   padding: 0 30px;
-  color: #555;
+  color:  #b2b2b2; /*#555;*/
   text-align: center;
   font-size: 11px;
   font-weight: 600;
@@ -549,7 +549,7 @@ div.Select-value, .Select-control, div.dropdown, .Select-input{
 
 .Select-control{
   background-color: inherit;
-  color:#b4b4b4;
+  color: #b4b4b4;
   border: 0px solid rgba(180, 180, 180, 0.4);
   border-bottom: 1px solid rgba(180, 180, 180, 0.4);
 }
@@ -613,13 +613,17 @@ div.Select-value, .Select-control, div.dropdown, .Select-input{
   height: 190px;
 }
 
+.mark-favorite-div {
+  display: flex;
+  float: right;
+  margin: 15px;
+}
+
 
 /* --- Favorites Board --- */
 
 .favorites-board {
-  display: grid
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr;
+  display: flex;
   width: 28vw;
   margin: 5px;
 }
@@ -628,18 +632,52 @@ div.Select-value, .Select-control, div.dropdown, .Select-input{
   display: grid;
   grid-template-columns: 1fr 1fr;   /*define columns distribution in major items div*/
   background-color: #30333d;
+  height: 90vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /*border: 1px solid red;*/
 }
 
 .favorite {
   display: flex;
   justify-content: left;
   margin: 5px;
-  min-height: 200px;
-  border: 1px solid cyan;
+  width: 13vw;
+  max-height: 20vh;  /*need for dismissing empty space from old favorite-chart-overlay position*/
 }
 
+.favorite-chart-graph {
+  width: 13vw;
+  height: 20vh;
+  
+  position: relative;  /*in combination with .favorite--chart-overlay needed for easily covering chart hover*/
+}
+
+.favorite-chart-overlay {
+  position: relative;
+  top: -20vh;
+  width: 13vw;
+  height: 20vh;
+}
+
+.favorite-select-button {
+  display: flex;
+  float: right;
+  border: 0px;
+  margin: 15px;
+}
+
+.favorite-release-button {
+  display: flex;
+  float: right;
+  border: 0px;
+  margin: 15px;
+}
+
+
+/*
 .favorites-configuration {
   background-color: #21252C;
   height: 225px;
 }
-
+*/

@@ -35,7 +35,7 @@ def e_moving_average_trace(df, fig):
     df2 = df.rolling(window=20).mean()
     trace = go.Scatter(
         x=df2.index, y=df2["close"], mode="lines", showlegend=True, name="EMA",
-        line = dict(width=1),
+        line=dict(width=1),
     )
     fig.append_trace(trace, 1, 1)  # plot in first row
     return fig
