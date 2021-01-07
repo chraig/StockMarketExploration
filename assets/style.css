@@ -660,20 +660,32 @@ div.Select-value, .Select-control, div.dropdown, .Select-input{
   height: 20vh;
 }
 
-.favorite-select-button {
+.favorite-chart-overlay > .favorite-infos {
   display: flex;
   float: right;
-  border: 0px;
+  position: relative;
+  top: 0;
+}
+
+.favorite-ticker {
   margin: 15px;
 }
 
-.favorite-release-button {
-  display: flex;
-  float: right;
-  border: 0px;
+.favorite-day-trend {
   margin: 15px;
 }
 
+.favorite-chart-overlay > .favorite-buttons {
+  display: flex;
+  justify-content: space-evenly;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+.favorite-button {
+  border: 0px;
+}
 
 /*
 .favorites-configuration {

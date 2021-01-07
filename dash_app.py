@@ -468,17 +468,35 @@ def generate_favorite_chart(chart):
                     html.Div(
                         className="favorite-chart-overlay",
                         children=[
-                            html.Button(
-                                id=chart + "_select",
-                                className="favorite-select-button",
-                                children="Select",
-                                n_clicks=0,
+                            html.Div(
+                                className="favorite-infos",
+                                children=[
+                                    html.P(
+                                        className="favorite-ticker",
+                                        children="MSFT"
+                                    ),
+                                    html.P(
+                                        className="favorite-day-trend",
+                                        children="+2.3%"
+                                    )
+                                ]
                             ),
-                            html.Button(
-                                id=chart + "_release",
-                                className="favorite-release-button",
-                                children="Release Favorite",
-                                n_clicks=0,
+                            html.Div(
+                                className="favorite-buttons",
+                                children=[
+                                    html.Button(
+                                        id=chart + "_select",
+                                        className="favorite-button",
+                                        children="Select",
+                                        n_clicks=0,
+                                    ),
+                                    html.Button(
+                                        id=chart + "_release",
+                                        className="favorite-button",
+                                        children="Release",
+                                        n_clicks=0,
+                                    )
+                                ]
                             )
                         ]
                     )
